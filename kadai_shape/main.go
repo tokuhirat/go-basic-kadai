@@ -13,7 +13,14 @@ type ValidationError struct {
 }
 
 func (e *ValidationError) Error() string {
-	return fmt.Sprintf(" Field=%s, Value=%v\n", e.Message, e.Value)
+	return fmt.Sprintf(
+		"[バリデーションエラー] %s：%s（Value：%.2f）\n [詳細] Field=%s, Value=%.2f\n",
+		e.Field,
+		e.Message,
+		e.Value,
+		e.Field,
+		e.Value,
+	)
 }
 
 type Rectangle struct {
@@ -51,18 +58,18 @@ func validateShape(s Shape) error {
 	case Rectangle:
 		if shape.Width <= 0 {
 			return &ValidationError{
-				Message: "Rectangle.Width", Field: "幅", Value: shape.Width,
+				Message: "幅は正の数を指定してください。", Field: "Rectangle.Width", Value: shape.Width,
 			}
 		}
 		if shape.Height <= 0 {
 			return &ValidationError{
-				Message: "Rectangle.Height", Field: "高さ", Value: shape.Height,
+				Message: "高さは正の数を指定してください。", Field: "Rectangle.Height", Value: shape.Height,
 			}
 		}
 	case Circle:
 		if shape.Radius <= 0 {
 			return &ValidationError{
-				Message: "Circle.Radius", Field: "半径", Value: shape.Radius,
+				Message: "半径は正の数を指定してください。", Field: "Circle.Radius", Value: shape.Radius,
 			}
 		}
 	default:
@@ -89,13 +96,7 @@ func main() {
 	for i, s := range shapes {
 		if err := validateShape(s); err != nil {
 			if valErr, ok := errors.AsType[*ValidationError](err); ok {
-				fmt.Printf("#%d：%T => NG ", i+1, s)
-				fmt.Printf(
-					"[バリデーションエラー] %sは正の数を指定してください。（Value：%.2f）\n",
-					valErr.Message,
-					valErr.Value,
-				)
-				fmt.Printf(" [詳細] %v", valErr)
+				fmt.Printf("#%d：%T => NG：%v", i+1, s, valErr)
 			} else {
 				fmt.Println("不明なエラーです")
 			}
