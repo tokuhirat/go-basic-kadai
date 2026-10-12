@@ -13,7 +13,7 @@ type ValidationError struct {
 }
 
 func (e *ValidationError) Error() string {
-	return fmt.Sprintf("Field=%s, Value=%v", e.Message, e.Value)
+	return fmt.Sprintf(" Field=%s, Value=%v\n", e.Message, e.Value)
 }
 
 type Rectangle struct {
@@ -69,4 +69,36 @@ func validateShape(s Shape) error {
 		return errors.New("対応していない図形です")
 	}
 	return nil
+}
+
+func main() {
+	shapes := []Shape{
+		Rectangle{Width: 10.0, Height: 5.0},
+		Circle{Radius: 3.0},
+		Rectangle{Width: -2.0, Height: 5.0}, // 不正（幅が不正）
+		Circle{Radius: -1.0},                // 不正（半径が不正）
+		Rectangle{Width: 1.0, Height: 0.0},  // 不正（高さが不正）
+	}
+
+	var calcShapes []Shape
+	fmt.Println("--- 図形のバリデーション ---")
+	for i, s := range shapes {
+		if err := validateShape(s); err != nil {
+			if valErr, ok := errors.AsType[*ValidationError](err); ok {
+				fmt.Printf("#%d：%T => NG ", i+1, s)
+				fmt.Printf(
+					"[バリデーションエラー] %sは正の数を指定してください。（Value：%.2f）\n",
+					valErr.Message,
+					valErr.Value,
+				)
+				fmt.Printf(" [詳細] %v", valErr)
+			} else {
+				fmt.Println("不明なエラーです")
+			}
+			continue
+		}
+
+		fmt.Printf("#%d：%T => バリデーションOK\n", i+1, s)
+		calcShapes = append(calcShapes, s)
+	}
 }
