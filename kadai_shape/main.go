@@ -71,6 +71,10 @@ func validateShape(s Shape) error {
 	return nil
 }
 
+func printShapeInfo(s Shape) {
+	fmt.Printf("図形：%T｜面積：%.2f ｜周長：%.2f\n", s, s.Area(), s.Perimeter())
+}
+
 func main() {
 	shapes := []Shape{
 		Rectangle{Width: 10.0, Height: 5.0},
@@ -100,5 +104,10 @@ func main() {
 
 		fmt.Printf("#%d：%T => バリデーションOK\n", i+1, s)
 		calcShapes = append(calcShapes, s)
+	}
+
+	fmt.Println("--- 検証済み図形の一括計算 ---")
+	for _, s := range calcShapes {
+		printShapeInfo(s)
 	}
 }
